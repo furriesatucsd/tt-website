@@ -63,7 +63,7 @@ description: Get exclusive merch, membership, materials, and more!
     </div>
   </div>
 
-  <!-- Post-Payment Form Modal -->
+  <!-- Pre-Payment Form Modal -->
   <div
     class="modal fade"
     id="ppform-modal"
@@ -83,11 +83,11 @@ description: Get exclusive merch, membership, materials, and more!
         >
           <div class="modal-header">
             <div>
-              <h4 class="modal-title" id="ppformModalLabel">Success, thank you!</h4>
+              <h4 class="modal-title" id="ppformModalLabel">Before You Pay...</h4>
             </div>
           </div>
           <div class="modal-body">
-            <p>Last step&mdash;to help expedite delivery, please fill out the following:</p>
+            <p>To help expedite delivery, please fill out the following:</p>
 
             <!-- Form with Email, Discord/Telegram, Desired Pickup Location (dropdown), and Tshirt Size (dropdown) -->
             <div class="mb-3 form-input">
@@ -133,6 +133,7 @@ description: Get exclusive merch, membership, materials, and more!
             </div>
           </div>
           <div class="modal-footer">
+            <!--Note: Skipping PPForm should cancel your order-->
             <button
               class="btn btn-link text-secondary"
               data-bs-dismiss="modal"
@@ -141,11 +142,48 @@ description: Get exclusive merch, membership, materials, and more!
             >
               Skip
             </button>
+            <!--Should be changed to go to Stripe? or something else that indicates "go pay"-->
             <button class="btn btn-primary" type="submit" onclick="fireGAEvent('PPForm Submitted')">
               Submit
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Success Modal -->
+  <div
+    class="modal fade"
+    id="success-modal"
+    tabindex="-1"
+    aria-labelledby="successModalLabel"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h4 class="modal-title" id="successModalLabel">Thank you for your support!</h4>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p>
+            Your purchase will help fund our organization and events; keep an eye on your email for
+            confirmation of your purchase! :3
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-link text-secondary"
+            data-bs-dismiss="modal"
+            type="button"
+            onclick="fireGAEvent('Success Modal Dismissed')"
+          >
+            Dismiss
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -877,10 +915,11 @@ description: Get exclusive merch, membership, materials, and more!
   // Cart Modal: Purchase Button
   var purchaseButton = document.querySelector('#cart-modal-checkout');
   purchaseButton.addEventListener('click', function (e) {
+    /*
     alert(
       "Sorry, the Club Store is currently unavailable to purchase things on! Check the announcements channel in our Discord server for updates on when it'll be available again~"
     );
-    /*
+    */
     // Run sanity checks on the cart
     // Check if the cart is empty
     if (userShoppingCart.length === 0) {
@@ -914,11 +953,11 @@ description: Get exclusive merch, membership, materials, and more!
     }
 
     // --- All checks have been run, so now we can proceed with checkout ---
-    // Show a quick notice
-    alert(
-      "We're sending you to Checkout! The store is owned and run by Robin Ocampo, a member of Triton Tails. Your order may appear on your statement as 'Robin O Merch' or 'RO-Merch'."
-    );
-
+    // Show checkout form, collect information
+    // Show the post-payment form modal
+    ppformModal = new bootstrap.Modal(document.querySelector('#ppform-modal'));
+    ppformModal.show();
+    /*
     // Make a copy of the cart that is acceptable for Stripe.
     var userShoppingCartCopy = [];
     for (var i = 0; i < userShoppingCart.length; i++) {
@@ -1024,11 +1063,11 @@ description: Get exclusive merch, membership, materials, and more!
 
       localStorage.removeItem('userOrderId');
 
-      // Show the post-payment form modal
-      ppformModal = new bootstrap.Modal(document.querySelector('#ppform-modal'));
-      ppformModal.show();
-
+      // Display a success message
       // alert('Success! Thank you for your purchase. We\'ll review your order and coordinate with you soon. If you have any questions, please reach out to us via Discord :3');
+
+      successModal = new bootstrap.Modal(document.querySelector('#success-modal'));
+      successModal.show();
 
       fireGACartData('store_checkoutCompleted');
     } else if (result === 'canceled') {
